@@ -23,7 +23,9 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, HTTPS with PEM!"))
+	// return header with errorcode
+	w.WriteHeader(http.StatusInternalServerError)
+	// w.Write([]byte("Hello, HTTPS with PEM!"))
 }
 
 func main() {
