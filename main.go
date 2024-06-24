@@ -1,37 +1,20 @@
 package main
 
 import (
-	"crypto/tls"
 	"log"
 	"net/http"
 )
 
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello, HTTPS with PEM!"))
+}
+
 func main() {
-	// Загрузка сертификата и ключа
-	cert, err := tls.LoadX509KeyPair("./certificate.crt", "./private.key")
+	http.HandleFunc("/", mainHandler)
+
+	// Запуск HTTPS сервера на порту 443 с использованием SSL сертификата и закрытого ключа в формате PEM
+	err := http.ListenAndServeTLS(":443", "fullchain.pem", "privkey.pem", nil)
 	if err != nil {
-		log.Fatalf("failed to load key pair: %s", err)
-	}
-
-	// Настройка TLS конфигурации
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-
-	// Создание HTTPS сервера
-	server := &http.Server{
-		Addr:      ":443",
-		TLSConfig: tlsConfig,
-	}
-
-	// Определение обработчика для корневого пути
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, HTTPS!"))
-	})
-
-	log.Println("Starting HTTPS server on :443")
-	err = server.ListenAndServeTLS("", "")
-	if err != nil {
-		log.Fatalf("server failed to start: %s", err)
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
